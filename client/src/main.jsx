@@ -4,16 +4,8 @@ import axios from 'axios'
 import App from './App'
 import './index.css'
 
-const productionApiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://careersight-ai.onrender.com'
-
-// Use the local backend in development, and the deployed Render backend in production unless overridden.
-axios.defaults.baseURL = import.meta.env.DEV
-  ? 'http://localhost:5000'
-  : productionApiBaseUrl
-
-if (import.meta.env.DEV === false && !import.meta.env.VITE_API_BASE_URL) {
-  console.warn(`VITE_API_BASE_URL is not set, using ${productionApiBaseUrl} as the production API base URL.`)
-}
+// Use the local backend in development. In production, Netlify proxies /api to the backend.
+axios.defaults.baseURL = import.meta.env.DEV ? 'http://localhost:5000' : (import.meta.env.VITE_API_BASE_URL || '')
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>

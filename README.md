@@ -31,10 +31,10 @@ Open the app at `http://localhost:5173/`.
 
 ## Production Deploy
 
-The repo is set up to deploy as a single Render service.
+The repo is set up to deploy with the frontend on Netlify and the backend on Render.
 
 1. Push this repo to GitHub.
-2. Create a new Render Web Service and point it at `render.yaml`.
+2. Create a Render Web Service for the backend and point it at `render.yaml`.
 3. Set these environment variables in Render:
 
 ```text
@@ -44,9 +44,11 @@ JWT_SECRET=<strong secret>
 GEMINI_API_KEY=<optional>
 ```
 
-4. Deploy.
+4. Create a Netlify site for the `client` folder.
+5. Keep the Netlify build command as `npm ci && npm run build` and publish directory as `dist`.
+6. Deploy the frontend.
 
-In production, the backend serves the built frontend automatically.
+Netlify proxies `/api/*` to the Render backend, so the frontend can call `/api/auth/...` and `/api/resume/...` without hardcoding a backend URL.
 
 ## Docker
 
@@ -60,4 +62,4 @@ docker compose up --build
 
 - The server falls back to a demo/in-memory mode if MongoDB is not available.
 - Set `GEMINI_API_KEY` to enable Gemini-based analysis; otherwise the local heuristic runs.
-- If you deploy the frontend separately, set `VITE_API_BASE_URL` to the live backend URL.
+- If you deploy the frontend separately and do not use the Netlify proxy, set `VITE_API_BASE_URL` to the live backend URL.
