@@ -1,90 +1,63 @@
-# CareerSight AI — Local & Docker setup
+# CareerSight AI
 
-This workspace contains a frontend (client) and backend (server) for the CareerSight AI demo.
+CareerSight AI is a full-stack resume analysis app that scores resumes, detects skills, and suggests internship roles with a simple improvement roadmap.
 
-Quick local (dev) run
+## Project Structure
 
-- Start backend (development):
+- `server/` - Express API, auth, resume upload, analysis
+- `client/` - React + Tailwind frontend
+- `render.yaml` - One-click Render deployment config
 
-```bash
+## Local Development
+
+Run the backend:
+
+```powershell
 cd server
 npm install
+copy .env.example .env
 npm run dev
 ```
 
-- Start frontend (development):
+Run the frontend:
 
-```bash
+```powershell
 cd client
 npm install
 npm run dev
 ```
 
-Open the UI at `http://127.0.0.1:5173/` and the backend at `http://127.0.0.1:5000/`.
+Open the app at `http://localhost:5173/`.
 
-Production deploy on Render
+## Production Deploy
+
+The repo is set up to deploy as a single Render service.
 
 1. Push this repo to GitHub.
-2. Create a new Web Service on Render using `render.yaml`.
-3. Add environment variables:
+2. Create a new Render Web Service and point it at `render.yaml`.
+3. Set these environment variables in Render:
 
 ```text
+NODE_ENV=production
 MONGO_URI=<your MongoDB Atlas URI>
 JWT_SECRET=<strong secret>
 GEMINI_API_KEY=<optional>
-NODE_ENV=production
 ```
 
 4. Deploy.
 
-The backend serves the built React app in production, so you only need one Render service.
-If you want to deploy the frontend separately, set `VITE_API_BASE_URL` during the frontend build.
+In production, the backend serves the built frontend automatically.
 
-Docker (recommended for full stack)
+## Docker
 
-1. Create an environment variable for `GEMINI_API_KEY` if you use the Gemini integration, or omit to run in demo mode.
-2. Build and start everything with Docker Compose:
+If you prefer containers, use Docker Compose:
 
 ```bash
 docker compose up --build
 ```
 
-This will start:
-- MongoDB on `27017`
-- Backend on `5000`
-- Frontend (served by nginx) on `5173`
+## Notes
 
-Notes
-- The server falls back to an in-memory demo store when MongoDB is not available (useful for quick testing).
-- To persist data, run with Docker Compose (the compose file includes a MongoDB service) or set `MONGO_URI` to your Atlas connection string.
-# CareerSight AI
-
-Simple full-stack app to analyze resumes and recommend internship roles.
-
-Structure:
-- `server/` - Express backend
-- `client/` - React + Tailwind frontend
-
-Quick start:
-
-1. Backend:
-
-```powershell
-cd "server"
-npm install
-copy .env.example .env
-# set MONGO_URI and JWT_SECRET in .env
-npm run dev
-```
-
-2. Frontend:
-
-```powershell
-cd "client"
-npm install
-npm run dev
-```
-
-Notes:
-- The backend will listen on port 5000 by default. The frontend expects the API at `http://localhost:5000`.
-- Set `GEMINI_API_KEY` in `server/.env` to enable Gemini analysis (placeholder endpoint in code; adjust to real API details).
+- The server falls back to a demo/in-memory mode if MongoDB is not available.
+- Set `GEMINI_API_KEY` to enable Gemini-based analysis; otherwise the local heuristic runs.
+- If you deploy the frontend separately, set `VITE_API_BASE_URL` to the live backend URL.
