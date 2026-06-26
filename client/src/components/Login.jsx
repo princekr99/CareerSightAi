@@ -15,7 +15,7 @@ export default function Login({ onLogin, switchToSignup }) {
       localStorage.setItem('careersight_user', JSON.stringify(user))
       onLogin(user)
     } catch (err) {
-      setError(err?.response?.data?.message || 'Login failed')
+      setError(err?.response?.data?.message || 'Login failed. Check API URL and backend availability.')
     }
   }
 

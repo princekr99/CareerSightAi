@@ -16,7 +16,7 @@ export default function Signup({ onSignup, switchToLogin }) {
       localStorage.setItem('careersight_user', JSON.stringify(user))
       onSignup(user)
     } catch (err) {
-      setError(err?.response?.data?.message || 'Signup failed')
+      setError(err?.response?.data?.message || 'Signup failed. Check API URL and backend availability.')
     }
   }
 
