@@ -1,0 +1,1 @@
+John Doe\nSkills: JavaScript, React, Node, MongoDB\nEducation: BSc Computer Science
