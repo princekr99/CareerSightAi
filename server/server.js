@@ -17,16 +17,21 @@ app.use(express.json());
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
-mongoose
-  .connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/careersight')
-  .then(() => {
-    setMongoEnabled(true);
-    console.log('Connected to MongoDB');
-  })
-  .catch((err) => {
-    setMongoEnabled(false);
-    console.error('MongoDB connection error', err.message || err);
-  });
+if (process.env.MONGO_URI || process.env.NODE_ENV !== 'production') {
+  mongoose
+    .connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/careersight')
+    .then(() => {
+      setMongoEnabled(true);
+      console.log('Connected to MongoDB');
+    })
+    .catch((err) => {
+      setMongoEnabled(false);
+      console.error('MongoDB connection error', err.message || err);
+    });
+} else {
+  setMongoEnabled(false);
+  console.log('MONGO_URI not configured in production. Falling back to in-memory store.');
+}
 
 // Routes
 app.use('/api/auth', authRoutes);
