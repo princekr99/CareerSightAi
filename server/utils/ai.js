@@ -59,14 +59,64 @@ function heuristicAnalyze(text) {
   return { skills: skillsFound, education, score, strengths, weaknesses, recommendedRoles, missingSkills, roadmap };
 }
 
-async function callGemini(prompt) {
+async function callGemini(text) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('No GEMINI API key');
 
-  // Placeholder: user must replace with actual Gemini API details.
-  const endpoint = 'https://api.gemini.example/v1/analyze';
-  const resp = await axios.post(endpoint, { prompt }, { headers: { Authorization: `Bearer ${key}` } });
-  return resp.data;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+  
+  const systemInstruction = `You are an expert resume analyzer. Analyze the provided resume text and extract the following details. Your output must strictly follow the JSON schema:
+- skills: Array of detected technologies, programming languages, libraries, frameworks, tools (all lowercase).
+- education: Array of degrees found (e.g. "Bachelors", "Masters", "B.Tech").
+- score: Integer rating from 0 to 100 based on resume strength, formatting, and relevance.
+- strengths: Array of 3-5 key strengths or callouts (e.g. "Strong Java background", "Open-source contributor").
+- weaknesses: Array of 2-4 areas of improvement.
+- recommendedRoles: Array of matching career roles (e.g. "Frontend Intern", "Backend Intern", "Full Stack Intern", "Data Analyst Intern").
+- missingSkills: An object mapping EACH of the recommended roles to an array of skills standard for that role that the user is missing in their resume.
+- roadmap: A 4-week actionable weekly learning roadmap to improve skills and qualify for recommended roles (4 strings).`;
+
+  const payload = {
+    contents: [
+      {
+        parts: [
+          { text: `Resume text:\n\n${text}` }
+        ]
+      }
+    ],
+    systemInstruction: {
+      parts: [{ text: systemInstruction }]
+    },
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: "OBJECT",
+        properties: {
+          skills: { type: "ARRAY", items: { type: "STRING" } },
+          education: { type: "ARRAY", items: { type: "STRING" } },
+          score: { type: "INTEGER" },
+          strengths: { type: "ARRAY", items: { type: "STRING" } },
+          weaknesses: { type: "ARRAY", items: { type: "STRING" } },
+          recommendedRoles: { type: "ARRAY", items: { type: "STRING" } },
+          missingSkills: {
+            type: "OBJECT",
+            properties: {
+              "Frontend Intern": { type: "ARRAY", items: { type: "STRING" } },
+              "Backend Intern": { type: "ARRAY", items: { type: "STRING" } },
+              "Full Stack Intern": { type: "ARRAY", items: { type: "STRING" } },
+              "Data Analyst Intern": { type: "ARRAY", items: { type: "STRING" } }
+            }
+          },
+          roadmap: { type: "ARRAY", items: { type: "STRING" } }
+        },
+        required: ["skills", "education", "score", "strengths", "weaknesses", "recommendedRoles", "missingSkills", "roadmap"]
+      }
+    }
+  };
+
+  const resp = await axios.post(endpoint, payload);
+  const resultText = resp.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!resultText) throw new Error('Empty response from Gemini API');
+  return JSON.parse(resultText);
 }
 
 async function analyzeResume(text) {

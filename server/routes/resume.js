@@ -4,7 +4,7 @@ const multer = require('multer');
 const { uploadResume } = require('../controllers/resumeController');
 const authenticate = require('../middleware/auth');
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.post('/upload', authenticate, upload.single('resume'), uploadResume);
 

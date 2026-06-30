@@ -11,7 +11,7 @@ const uploadResume = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 
-    const dataBuffer = fs.readFileSync(req.file.path);
+    const dataBuffer = req.file.buffer;
     let text = '';
 
     try {
